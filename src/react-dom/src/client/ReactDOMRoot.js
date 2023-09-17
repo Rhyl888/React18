@@ -2,7 +2,7 @@ import {
   createContainer,
   updateContainer,
 } from "react-reconciler/src/ReactFiberReconciler";
-import { listenToAllSupportedEvents } from "react-dom-bindings/src/events/DOMPluginEventSystem";
+import { listenToAllSupportedEvents } from "react-dom-bindings/src/event/DOMPluginEventSystem";
 
 function ReactDOMRoot(internalRoot) {
   this._internalRoot = internalRoot;

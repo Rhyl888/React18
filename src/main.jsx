@@ -3,12 +3,12 @@ import { createRoot } from "react-dom/client";
 function FunctionComponent() {
   return (
     <h1
-      onClick={() => console.log(`父冒泡`)}
-      onClickCapture={() => console.log(`父俘获`)}
+      onClick={() => console.log(`ParentBubble`)}
+      onClickCapture={() => console.log(`ParentCapture`)}
     >
       <span
-        onClick={() => console.log(`子冒泡`)}
-        onClickCapture={() => console.log(`子俘获`)}
+        onClick={() => console.log(`ChildBubble`)}
+        onClickCapture={() => console.log(`ChildBubble`)}
       >
         world
       </span>

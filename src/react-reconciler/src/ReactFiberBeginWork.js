@@ -79,7 +79,6 @@ function mountIndeterminateComponent(current, workInProgress, Component) {
  * brucefe/bruce_nodejs_project_template
  */
 export function beginWork(current, workInProgress) {
-  logger("beginWork", workInProgress);
   switch (workInProgress.tag) {
     case IndeterminateComponent:
       return mountIndeterminateComponent(
