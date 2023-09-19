@@ -2,9 +2,21 @@ import { scheduleCallback } from "scheduler";
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
-import { MutationMask, NoFlags } from "./ReactFiberFlags";
+import {
+  ChildDeletion,
+  MutationMask,
+  NoFlags,
+  Placement,
+  Update,
+} from "./ReactFiberFlags";
 import { commitMutationEffectsOnFiber } from "./ReactFiberCommitWork";
 import { finishQueueingConCurrentUpdates } from "./ReactFiberConcurrentUpdates";
+import {
+  FunctionComponent,
+  HostComponent,
+  HostRoot,
+  HostTetx,
+} from "./ReactWorkTags";
 
 let workInProgress = null;
 let workInProgressRoot = null;
@@ -41,6 +53,7 @@ function performConcurrentWorkOnRoot(root) {
 
 function commitRoot(root) {
   const { finishedWork } = root;
+  priintFinishedWork(finishedWork);
   console.log("~~~~~~~~");
   //判断子树有没有副作用
   const subtreeHasEffects =
@@ -107,4 +120,54 @@ function completeUnitOfWork(unitOfWork) {
     completedWork = returnFiber;
     workInProgress = completedWork;
   } while (completedWork !== null);
+}
+
+function priintFinishedWork(fiber) {
+  let child = fiber.child;
+  while (child) {
+    priintFinishedWork(child);
+    child = child.sibling;
+  }
+  if (fiber.flags !== 0) {
+    console.log(
+      getFlages(fiber),
+      getTag(fiber.tag),
+      typeof fiber.type === "function" ? fiber.type.name : fiber.type,
+      fiber.memoizedProps
+    );
+  }
+}
+
+function getFlages(fiber) {
+  const { flags, deletions } = fiber;
+  if (flags === Placement) {
+    return "插入";
+  }
+  if (flags === Update) {
+    return "更新";
+  }
+  if ((flags & ChildDeletion) !== NoFlags) {
+    return (
+      "子节点有删除" +
+      deletions
+        .map((fiber) => `${fiber.type}#${fiber.memoizedProps.id}`)
+        .join(",")
+    );
+  }
+  return flags;
+}
+
+function getTag(tag) {
+  switch (tag) {
+    case FunctionComponent:
+      return "FunctionComponent";
+    case HostRoot:
+      return "HostRoot";
+    case HostComponent:
+      return "HostComponent";
+    case HostTetx:
+      return "HostTetx";
+    default:
+      return tag;
+  }
 }

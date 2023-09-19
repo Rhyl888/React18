@@ -7,9 +7,6 @@ const RESERVED_PROPS = {
   _source: true,
 };
 
-function hasValidKey(config) {
-  return config.key !== undefined;
-}
 function hasValidRef(config) {
   return config.ref !== undefined;
 }
@@ -25,13 +22,13 @@ function ReactElement(type, key, ref, props) {
   };
 }
 
-export function jsxDEV(type, config) {
+export function jsxDEV(type, config, maybeKey) {
   let propName; // 属性名
   const props = {}; // 属性对象
   let key = null; //唯一标识
   let ref = null; //引用，真实DOM的实例
-  if (hasValidKey(config)) {
-    key = config.key;
+  if (typeof maybeKey !== "undefined") {
+    key = maybeKey;
   }
   if (hasValidRef(config)) {
     ref = config.ref;

@@ -53,3 +53,7 @@ export function commitUpdate(
   updateProperties(domElemnt, updatePayload, type, oldProps, newProps);
   updateFiberProps(domElemnt, newProps);
 }
+
+export function removeChild(parentInstance, child) {
+  parentInstance.removeChild(child);
+}

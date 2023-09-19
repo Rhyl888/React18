@@ -110,7 +110,6 @@ export function diffProperties(domElment, tag, lastProps, nextProps) {
   if (styleUpdates) {
     (updatePayload = updatePayload || []).push(STYLE, styleUpdates);
   }
-  console.log(updatePayload);
   return updatePayload;
 }
 

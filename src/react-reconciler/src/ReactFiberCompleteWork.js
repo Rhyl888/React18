@@ -63,7 +63,6 @@ function updateHostComponent(current, workInProgress, type, newProps) {
   const updatePayload = prepareUpdate(instance, type, oldProps, newProps);
   //让原生组件的新fiber更新队列等于 【】
   workInProgress.updateQueue = updatePayload;
-  console.log("updatePayload", updatePayload);
   if (updatePayload) {
     markUpdate(workInProgress);
   }

@@ -39,6 +39,7 @@ export function FiberNode(tag, pendingProps, key) {
   this.alternate = null;
   //在子节点中排序的位置
   this.index = 0;
+  this.deletions = null; //存放将要删除的fiber
 }
 
 export function createFiber(tag, pendingProps, key) {

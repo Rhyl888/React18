@@ -4,8 +4,9 @@ import {
   createFiberFromText,
   createWorkInProgress,
 } from "./ReactFiber";
-import { Placement } from "./ReactFiberFlags";
+import { Placement, ChildDeletion } from "./ReactFiberFlags";
 import isArray from "shared/isArray";
+
 /**
  *
  * @param {*} shouldTrackSideEffects 是否跟踪副作用
@@ -16,6 +17,26 @@ function createChildReconciler(shouldTrackSideEffects) {
     clone.index = 0;
     clone.sibling = null;
     return clone;
+  }
+  function deleteChild(returnFiber, childToDelete) {
+    if (!shouldTrackSideEffects) return;
+    const deletions = returnFiber.deletions;
+    if (deletions === null) {
+      returnFiber.deletions = [childToDelete];
+      returnFiber.flags |= ChildDeletion;
+    } else {
+      deletions.push(childToDelete);
+    }
+  }
+  //删除从currentFirstChild之后所有的fiber节点
+  function deleteRemainingChildren(returnFiber, currentFirstChild) {
+    if (!shouldTrackSideEffects) return;
+    let childToDelete = currentFirstChild;
+    while (childToDelete !== null) {
+      deleteChild(returnFiber, childToDelete);
+      childToDelete = childToDelete.sibling;
+    }
+    return null;
   }
   /**
    *
@@ -30,13 +51,19 @@ function createChildReconciler(shouldTrackSideEffects) {
     let child = currentFirstChild; //老的FunctionComponent对应的fiber
     while (child !== null) {
       //判断此老fiber对应的key和新虚拟DOM对象对应的Key是否相同
-      if (child.key === element.key) {
+      if (child.key === key) {
         //判断老fiber对应的类型和新虚拟DOM对象对应的类型是否相同
         if (child.type === element.type) {
+          deleteRemainingChildren(returnFiber, child.sibling);
           const existing = useFiber(child, element.props);
           existing.return = returnFiber;
           return existing;
+        } else {
+          //如果找到以key一样的老fiber 但是类型不一样，，不能复用此老fiber，把剩下的全部删除
+          deleteRemainingChildren(returnFiber, child);
         }
+      } else {
+        deleteChild(returnFiber, child);
       }
       child = child.sibling;
     }
