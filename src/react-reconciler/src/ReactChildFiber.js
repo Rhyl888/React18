@@ -1,5 +1,9 @@
 import { REACT_ELEMENT_TYPE } from "shared/ReactSymbols";
-import { createFiberFromElement, createFiberFromText } from "./ReactFiber";
+import {
+  createFiberFromElement,
+  createFiberFromText,
+  createWorkInProgress,
+} from "./ReactFiber";
 import { Placement } from "./ReactFiberFlags";
 import isArray from "shared/isArray";
 /**
@@ -7,8 +11,37 @@ import isArray from "shared/isArray";
  * @param {*} shouldTrackSideEffects 是否跟踪副作用
  */
 function createChildReconciler(shouldTrackSideEffects) {
-  function reconcileSingleElement(returnFiber, currentFirstFiber, element) {
-    //第一次父fiber没有子fiber
+  function useFiber(fiber, pendingProps) {
+    const clone = createWorkInProgress(fiber, pendingProps);
+    clone.index = 0;
+    clone.sibling = null;
+    return clone;
+  }
+  /**
+   *
+   * @param {*} returnFiber 根fiber div#root对应的fiber
+   * @param {*} currentFirstChild 老的FunctionComponent 对应的fiber
+   * @param {*} element 新的虚拟DOM对象
+   * @returns 返回新的第一个子fiber
+   */
+  function reconcileSingleElement(returnFiber, currentFirstChild, element) {
+    //新的虚拟DOM的key,唯一标识
+    const key = element.key; //null
+    let child = currentFirstChild; //老的FunctionComponent对应的fiber
+    while (child !== null) {
+      //判断此老fiber对应的key和新虚拟DOM对象对应的Key是否相同
+      if (child.key === element.key) {
+        //判断老fiber对应的类型和新虚拟DOM对象对应的类型是否相同
+        if (child.type === element.type) {
+          const existing = useFiber(child, element.props);
+          existing.return = returnFiber;
+          return existing;
+        }
+      }
+      child = child.sibling;
+    }
+
+    //第一次挂载 老节点currentFirstChild肯定是没有的（根fiber HostRoot）没有子fiber，就直接创建
     const created = createFiberFromElement(element);
     created.return = returnFiber;
     return created;
@@ -20,7 +53,7 @@ function createChildReconciler(shouldTrackSideEffects) {
    */
   function placeSingleChild(newFiber) {
     //说明要添加副作用
-    if (shouldTrackSideEffects) {
+    if (shouldTrackSideEffects && newFiber.alternate === null) {
       newFiber.flags |= Placement;
     }
     return newFiber;
@@ -57,7 +90,7 @@ function createChildReconciler(shouldTrackSideEffects) {
     }
   }
 
-  function reconcileChildrenArray(returnFiber, currentFirstFiber, newChildren) {
+  function reconcileChildrenArray(returnFiber, currentFirstChild, newChildren) {
     let resultingFirstChild = null; //返回的第一个新儿子
     let previousNewFiber = null; //上一个的新fiber
     let newIndex = 0;
@@ -82,15 +115,15 @@ function createChildReconciler(shouldTrackSideEffects) {
   /**
    * 比较子Fiber 老的子fiber链表和新的子虚拟DOM进行比较的过程
    * @param {*} returnFiber 新的父fiber
-   * @param {*} currentFirstFiber 老fiber的第一个子fiber
+   * @param {*} currentFirstChild 老fiber的第一个子fiber
    * @param {*} newChild 新的子虚拟DOM
    */
-  function reconcileChildFibers(returnFiber, currentFirstFiber, newChild) {
+  function reconcileChildFibers(returnFiber, currentFirstChild, newChild) {
     if (typeof newChild === "object" && newChild !== null) {
       switch (newChild.$$typeof) {
         case REACT_ELEMENT_TYPE:
           return placeSingleChild(
-            reconcileSingleElement(returnFiber, currentFirstFiber, newChild)
+            reconcileSingleElement(returnFiber, currentFirstChild, newChild)
           );
         default:
           break;
@@ -98,7 +131,7 @@ function createChildReconciler(shouldTrackSideEffects) {
     }
     //newChild [hello文本节点，span虚拟DOM元素]
     if (isArray(newChild)) {
-      return reconcileChildrenArray(returnFiber, currentFirstFiber, newChild);
+      return reconcileChildrenArray(returnFiber, currentFirstChild, newChild);
     }
     return null;
   }

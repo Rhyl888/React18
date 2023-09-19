@@ -1,4 +1,4 @@
-import { markUpdateLaneFromFiberToRoot } from "./ReactFiberConcurrentUpdate";
+import { markUpdateLaneFromFiberToRoot } from "./ReactFiberConcurrentUpdates";
 import assign from "shared/assign";
 const UpdateState = 0;
 export function initialUpdateQueue(fiber) {

@@ -9,7 +9,7 @@ import {
 import { processUpdateQueue } from "./ReactFiberClassUpdateQueue";
 import { mountChildFibers, reconcileChildFibers } from "./ReactChildFiber";
 import { shouldSetTextContent } from "react-dom-bindings/src/client/ReactDOMHostConfig";
-import { renderWithHooks } from "react-reconciler/src/ReactFiberHooks";
+import { renderWithHooks } from "./ReactFiberHooks.js";
 
 /**
  * 根据新的虚拟DOM生成新的Fiber链表
@@ -72,6 +72,22 @@ function mountIndeterminateComponent(current, workInProgress, Component) {
   return workInProgress.child;
 }
 
+function updateFunctionComponent(
+  current,
+  workInProgress,
+  Component,
+  nextProps
+) {
+  const nextChidren = renderWithHooks(
+    current,
+    workInProgress,
+    Component,
+    nextProps
+  );
+  reconcileChildren(current, workInProgress, nextChidren);
+  return workInProgress.child;
+}
+
 /**
  *根据新虚拟DOM 构建 新的fiber子链表 child 和sibling
  * @param {*} current 老fiber
@@ -86,7 +102,16 @@ export function beginWork(current, workInProgress) {
         workInProgress,
         workInProgress.type
       );
-
+    case FunctionComponent: {
+      const Component = workInProgress.type;
+      const nextProps = workInProgress.pendingProps;
+      return updateFunctionComponent(
+        current,
+        workInProgress,
+        Component,
+        nextProps
+      );
+    }
     case HostRoot:
       return updateHostRoot(current, workInProgress);
     case HostComponent:
