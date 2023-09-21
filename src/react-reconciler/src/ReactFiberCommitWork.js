@@ -1,16 +1,6 @@
-import {
-  appendChild,
-  insertBefore,
-  commitUpdate,
-  removeChild,
-} from "react-dom-bindings/src/client/ReactDOMHostConfig";
+import { appendChild, insertBefore, commitUpdate, removeChild } from "react-dom-bindings/src/client/ReactDOMHostConfig";
 import { MutationMask, Placement, Update } from "./ReactFiberFlags";
-import {
-  FunctionComponent,
-  HostComponent,
-  HostRoot,
-  HostTetx,
-} from "./ReactWorkTags";
+import { FunctionComponent, HostComponent, HostRoot, HostTetx } from "./ReactWorkTags";
 
 let hostParent = null;
 /**
@@ -41,20 +31,12 @@ function commitDeletionEffects(root, returnFiber, deletedFiber) {
   hostParent = null;
 }
 
-function commitDeletionEffectsOnFiber(
-  finishedRoot,
-  nearestMountedAncestor,
-  deletedFiber
-) {
+function commitDeletionEffectsOnFiber(finishedRoot, nearestMountedAncestor, deletedFiber) {
   switch (deletedFiber.tag) {
     case HostComponent:
     case HostTetx: {
       //当要删除一个节点的时候，要先删除它的子节点
-      recursivelyTraverseDeletionEffects(
-        finishedRoot,
-        nearestMountedAncestor,
-        deletedFiber
-      );
+      recursivelyTraverseDeletionEffects(finishedRoot, nearestMountedAncestor, deletedFiber);
       //再把自己删除
       if (hostParent !== null) {
         removeChild(hostParent, deletedFiber.stateNode);
@@ -66,11 +48,7 @@ function commitDeletionEffectsOnFiber(
   }
 }
 
-function recursivelyTraverseDeletionEffects(
-  finishedRoot,
-  nearestMountedAncestor,
-  parent
-) {
+function recursivelyTraverseDeletionEffects(finishedRoot, nearestMountedAncestor, parent) {
   let child = parent.child;
   while (child !== null) {
     commitDeletionEffectsOnFiber(finishedRoot, nearestMountedAncestor, child);
@@ -243,14 +221,7 @@ export function commitMutationEffectsOnFiber(finishedWork, root) {
           const updatePayload = finishedWork.updateQueue;
           finishedWork.updateQueue = null;
           if (updatePayload) {
-            commitUpdate(
-              instance,
-              updatePayload,
-              type,
-              oldProps,
-              newProps,
-              finishedWork
-            );
+            commitUpdate(instance, updatePayload, type, oldProps, newProps, finishedWork);
           }
         }
       }

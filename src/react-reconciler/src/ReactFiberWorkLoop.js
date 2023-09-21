@@ -2,21 +2,10 @@ import { scheduleCallback } from "scheduler";
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
-import {
-  ChildDeletion,
-  MutationMask,
-  NoFlags,
-  Placement,
-  Update,
-} from "./ReactFiberFlags";
+import { ChildDeletion, MutationMask, NoFlags, Placement, Update } from "./ReactFiberFlags";
 import { commitMutationEffectsOnFiber } from "./ReactFiberCommitWork";
 import { finishQueueingConCurrentUpdates } from "./ReactFiberConcurrentUpdates";
-import {
-  FunctionComponent,
-  HostComponent,
-  HostRoot,
-  HostTetx,
-} from "./ReactWorkTags";
+import { FunctionComponent, HostComponent, HostRoot, HostTetx } from "./ReactWorkTags";
 
 let workInProgress = null;
 let workInProgressRoot = null;
@@ -56,8 +45,7 @@ function commitRoot(root) {
   priintFinishedWork(finishedWork);
   console.log("~~~~~~~~");
   //判断子树有没有副作用
-  const subtreeHasEffects =
-    (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
+  const subtreeHasEffects = (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
   const rootHasEffects = (finishedWork.flags & MutationMask) !== NoFlags;
   if (subtreeHasEffects || rootHasEffects) {
     commitMutationEffectsOnFiber(finishedWork, root);
@@ -140,6 +128,9 @@ function priintFinishedWork(fiber) {
 
 function getFlages(fiber) {
   const { flags, deletions } = fiber;
+  if (flags === (Placement | Update)) {
+    return "移动";
+  }
   if (flags === Placement) {
     return "插入";
   }
@@ -147,12 +138,7 @@ function getFlages(fiber) {
     return "更新";
   }
   if ((flags & ChildDeletion) !== NoFlags) {
-    return (
-      "子节点有删除" +
-      deletions
-        .map((fiber) => `${fiber.type}#${fiber.memoizedProps.id}`)
-        .join(",")
-    );
+    return "子节点有删除" + deletions.map((fiber) => `${fiber.type}#${fiber.memoizedProps.id}`).join(",");
   }
   return flags;
 }

@@ -52,7 +52,6 @@ function dispatchSetState(fiber, queue, action) {
   update.hasEagerState = true;
   update.eagerState = eagerState;
   if (Object.is(eagerState, lastRenderedState)) {
-    debugger;
     return;
   }
   //入队更新 并调度更新逻辑

@@ -1,13 +1,7 @@
-import {
-  setInitialProperties,
-  diffProperties,
-  updateProperties,
-} from "./ReactDOMComponent";
+import { setInitialProperties, diffProperties, updateProperties } from "./ReactDOMComponent";
 import { precacheFiberNode, updateFiberProps } from "./ReactDOMComponentTree";
 export function shouldSetTextContent(type, props) {
-  return (
-    typeof props.children === "string" || typeof props.children === "number"
-  );
+  return typeof props.children === "string" || typeof props.children === "number";
 }
 
 export function createTextInstance(content) {
@@ -43,13 +37,7 @@ export function prepareUpdate(domElment, type, oldProps, newProps) {
   return diffProperties(domElment, type, oldProps, newProps);
 }
 
-export function commitUpdate(
-  domElemnt,
-  updatePayload,
-  type,
-  oldProps,
-  newProps
-) {
+export function commitUpdate(domElemnt, updatePayload, type, oldProps, newProps) {
   updateProperties(domElemnt, updatePayload, type, oldProps, newProps);
   updateFiberProps(domElemnt, newProps);
 }

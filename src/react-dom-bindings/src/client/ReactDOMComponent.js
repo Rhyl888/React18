@@ -35,11 +35,7 @@ export function diffProperties(domElment, tag, lastProps, nextProps) {
   //处理属性的删除 ，属性在老对象里有，在新对象里没有，就删除
   for (propKey in lastProps) {
     //如果新属性对象有这个属性，或者老的没有这个属性，或者老的对象是Null
-    if (
-      nextProps.hasOwnProperty(propKey) ||
-      !lastProps.hasOwnProperty(propKey) ||
-      lastProps[propKey] == null
-    ) {
+    if (nextProps.hasOwnProperty(propKey) || !lastProps.hasOwnProperty(propKey) || lastProps[propKey] == null) {
       continue;
     }
     if (propKey === STYLE) {
@@ -61,11 +57,7 @@ export function diffProperties(domElment, tag, lastProps, nextProps) {
     const nextProp = nextProps[propKey];
     //老属性的值
     const lastProp = lastProps !== null ? lastProps[propKey] : undefined;
-    if (
-      !nextProps.hasOwnProperty(propKey) ||
-      nextProp === lastProp ||
-      (nextProp === null && lastProp === null)
-    ) {
+    if (!nextProps.hasOwnProperty(propKey) || nextProp === lastProp || (nextProp === null && lastProp === null)) {
       continue;
     }
     if (propKey === STYLE) {
@@ -73,10 +65,7 @@ export function diffProperties(domElment, tag, lastProps, nextProps) {
         //计算要删除的行内样式
         for (styleName in lastProp) {
           //如果此样式对象里的属性在老的对象的style里有，在新的style没有
-          if (
-            lastProp.hasOwnProperty(styleName) &&
-            (!nextProp || !nextProp.hasOwnProperty(styleName))
-          ) {
+          if (lastProp.hasOwnProperty(styleName) && (!nextProp || !nextProp.hasOwnProperty(styleName))) {
             if (!styleUpdates) {
               styleUpdates = {};
             }
@@ -86,10 +75,7 @@ export function diffProperties(domElment, tag, lastProps, nextProps) {
         //遍历新的样式对象
         for (styleName in nextProp) {
           //如果新的属性有，而且新属性的值和老属性的不一样
-          if (
-            nextProp.hasOwnProperty(styleName) &&
-            lastProp[styleName] !== nextProp[styleName]
-          ) {
+          if (nextProp.hasOwnProperty(styleName) && lastProp[styleName] !== nextProp[styleName]) {
             if (!styleUpdates) {
               styleUpdates = {};
             }
