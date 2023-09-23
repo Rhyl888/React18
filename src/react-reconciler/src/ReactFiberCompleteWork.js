@@ -4,14 +4,9 @@ import {
   createInstance,
   appendInitialChild,
   finalizeInitialChildren,
-  prepareUpdate,
+  prepareUpdate
 } from "react-dom-bindings/src/client/ReactDOMHostConfig";
-import {
-  HostComponent,
-  HostTetx,
-  HostRoot,
-  FunctionComponent,
-} from "./ReactWorkTags";
+import { HostComponent, HostText, HostRoot, FunctionComponent } from "./ReactWorkTags";
 import { NoFlags, Update } from "./ReactFiberFlags";
 
 /**
@@ -23,7 +18,7 @@ function appendAllChildren(parent, workInProgress) {
   let node = workInProgress.child;
   while (node) {
     //如果子节点类型是一个原生节点或者一个文本节点
-    if (node.tag === HostComponent || node.tag === HostTetx) {
+    if (node.tag === HostComponent || node.tag === HostText) {
       appendInitialChild(parent, node.stateNode);
       //如果第一个儿子不是一个原生或者文本节点，说明它可能是一个函数组件
     } else if (node.child !== null) {
@@ -98,7 +93,7 @@ export function completeWork(current, workInProgress) {
     case FunctionComponent:
       bubbleProperties(workInProgress);
       break;
-    case HostTetx:
+    case HostText:
       //完成的fiber是文本节点，就直接创建真实的DOM
       const newText = newProps;
       workInProgress.stateNode = createTextInstance(newText);

@@ -2,14 +2,20 @@ import { scheduleCallback } from "scheduler";
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
-import { ChildDeletion, MutationMask, NoFlags, Placement, Update } from "./ReactFiberFlags";
-import { commitMutationEffectsOnFiber } from "./ReactFiberCommitWork";
+import { ChildDeletion, MutationMask, NoFlags, Passive, Placement, Update } from "./ReactFiberFlags";
+import {
+  commitMutationEffectsOnFiber, //执行DOM操作
+  commitPassiveUnmountEffects, //执行destroy
+  commitPassiveMountEffects //执行create
+} from "./ReactFiberCommitWork";
 import { finishQueueingConCurrentUpdates } from "./ReactFiberConcurrentUpdates";
-import { FunctionComponent, HostComponent, HostRoot, HostTetx } from "./ReactWorkTags";
+import { FunctionComponent, HostComponent, HostRoot, HostText } from "./ReactWorkTags";
 
 let workInProgress = null;
 let workInProgressRoot = null;
-/**
+let rootDoesHavePassiveEffect = false; //此根节点上有没有useEffect类似的副作用
+let rootWithPendingPassiveEffects = null; //具有useEffect副作用的根节点 FiberRootNode
+/*
  * 计划更新root
  * 调度任务的功能
  * @param {*} root
@@ -40,16 +46,39 @@ function performConcurrentWorkOnRoot(root) {
   workInProgressRoot = null;
 }
 
+function flushPassiveEffect() {
+  if (rootWithPendingPassiveEffects !== null) {
+    const root = rootWithPendingPassiveEffects;
+    //执行卸载副作用 destory
+    commitPassiveUnmountEffects(root.current);
+    //执行挂在副作用 create
+    commitPassiveMountEffects(root, root.current);
+  }
+}
+
 function commitRoot(root) {
   const { finishedWork } = root;
-  priintFinishedWork(finishedWork);
+  if ((finishedWork.subtreeFlags & Passive) !== NoFlags || (finishedWork.flags & Passive) !== NoFlags) {
+    if (!rootDoesHavePassiveEffect) {
+      rootDoesHavePassiveEffect = true;
+      scheduleCallback(flushPassiveEffect);
+    }
+  }
   console.log("~~~~~~~~");
   //判断子树有没有副作用
   const subtreeHasEffects = (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
   const rootHasEffects = (finishedWork.flags & MutationMask) !== NoFlags;
+  //如果自己有副作用或者子节点有副作用就进行提交DOM操作
   if (subtreeHasEffects || rootHasEffects) {
+    //执行DOM操作
     commitMutationEffectsOnFiber(finishedWork, root);
+    if (rootDoesHavePassiveEffect) {
+      root.current = finishedWork;
+      rootDoesHavePassiveEffect = false;
+      rootWithPendingPassiveEffects = root;
+    }
   }
+  //等DOM变更后，就可以让root的current指向新的fiber 树
   root.current = finishedWork;
 }
 
@@ -151,8 +180,8 @@ function getTag(tag) {
       return "HostRoot";
     case HostComponent:
       return "HostComponent";
-    case HostTetx:
-      return "HostTetx";
+    case HostText:
+      return "HostText";
     default:
       return tag;
   }

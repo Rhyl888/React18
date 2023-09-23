@@ -2,7 +2,7 @@ import { REACT_ELEMENT_TYPE } from "shared/ReactSymbols";
 import { createFiberFromElement, createFiberFromText, createWorkInProgress } from "./ReactFiber";
 import { Placement, ChildDeletion } from "./ReactFiberFlags";
 import isArray from "shared/isArray";
-import { HostTetx } from "./ReactWorkTags";
+import { HostText } from "./ReactWorkTags";
 
 /**
  *
@@ -177,7 +177,7 @@ function createChildReconciler(shouldTrackSideEffects) {
   }
 
   function updateTextNode(exitingChildren, returnFiber, newIndex, newChild) {
-    if (current === null || current.tag !== HostTetx) {
+    if (current === null || current.tag !== HostText) {
       const created = createFiberFromText(textContent);
       created.return = returnFiber;
       return created;

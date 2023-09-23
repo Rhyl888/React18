@@ -9,7 +9,7 @@ export default function (prefix, workInProgress) {
   let str = ` ${tagName} `;
   if (tagName === "HostComponent") {
     str += ` ${workInProgress.type}`;
-  } else if (tagName === "HostTetx") {
+  } else if (tagName === "HostText") {
     str += ` ${workInProgress.pendingProps}`;
   }
   console.log(`${prefix} ${str}`);

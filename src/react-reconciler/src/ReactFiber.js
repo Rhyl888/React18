@@ -1,9 +1,4 @@
-import {
-  HostComponent,
-  HostRoot,
-  HostTetx,
-  IndeterminateComponent,
-} from "./ReactWorkTags";
+import { HostComponent, HostRoot, HostText, IndeterminateComponent } from "./ReactWorkTags";
 import { NoFlags } from "./ReactFiberFlags";
 /**
  *
@@ -101,5 +96,5 @@ function createFiberFromTypeAndProps(type, key, pendingProps) {
 }
 
 export function createFiberFromText(content) {
-  return createFiber(HostTetx, content, null);
+  return createFiber(HostText, content, null);
 }

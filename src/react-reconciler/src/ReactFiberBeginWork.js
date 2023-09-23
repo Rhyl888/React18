@@ -1,11 +1,5 @@
 import logger from "shared/logger";
-import {
-  HostComponent,
-  HostRoot,
-  HostTetx,
-  FunctionComponent,
-  IndeterminateComponent,
-} from "./ReactWorkTags";
+import { HostComponent, HostRoot, HostText, FunctionComponent, IndeterminateComponent } from "./ReactWorkTags";
 import { processUpdateQueue } from "./ReactFiberClassUpdateQueue";
 import { mountChildFibers, reconcileChildFibers } from "./ReactChildFiber";
 import { shouldSetTextContent } from "react-dom-bindings/src/client/ReactDOMHostConfig";
@@ -23,11 +17,7 @@ function reconcileChildren(current, workInProgress, nextChidren) {
     workInProgress.child = mountChildFibers(workInProgress, null, nextChidren);
   } else {
     //如果有老fiber,进行DOM-DIFF 拿老的fiber和新的子虚拟DOM进行比较，进行最小化更新
-    workInProgress.child = reconcileChildFibers(
-      workInProgress,
-      current.child,
-      nextChidren
-    );
+    workInProgress.child = reconcileChildFibers(workInProgress, current.child, nextChidren);
   }
 }
 
@@ -72,18 +62,8 @@ function mountIndeterminateComponent(current, workInProgress, Component) {
   return workInProgress.child;
 }
 
-function updateFunctionComponent(
-  current,
-  workInProgress,
-  Component,
-  nextProps
-) {
-  const nextChidren = renderWithHooks(
-    current,
-    workInProgress,
-    Component,
-    nextProps
-  );
+function updateFunctionComponent(current, workInProgress, Component, nextProps) {
+  const nextChidren = renderWithHooks(current, workInProgress, Component, nextProps);
   reconcileChildren(current, workInProgress, nextChidren);
   return workInProgress.child;
 }
@@ -97,26 +77,17 @@ function updateFunctionComponent(
 export function beginWork(current, workInProgress) {
   switch (workInProgress.tag) {
     case IndeterminateComponent:
-      return mountIndeterminateComponent(
-        current,
-        workInProgress,
-        workInProgress.type
-      );
+      return mountIndeterminateComponent(current, workInProgress, workInProgress.type);
     case FunctionComponent: {
       const Component = workInProgress.type;
       const nextProps = workInProgress.pendingProps;
-      return updateFunctionComponent(
-        current,
-        workInProgress,
-        Component,
-        nextProps
-      );
+      return updateFunctionComponent(current, workInProgress, Component, nextProps);
     }
     case HostRoot:
       return updateHostRoot(current, workInProgress);
     case HostComponent:
       return updateHostComponent(current, workInProgress);
-    case HostTetx:
+    case HostText:
       return null;
     default:
       return null;
