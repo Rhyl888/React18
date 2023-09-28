@@ -1,8 +1,8 @@
 import ReactSharedInternals from "shared/ReactSharedInternals";
 import { scheduleUpdateOnFiber } from "./ReactFiberWorkLoop";
 import { enqueueConcurrentHookUpdate } from "./ReactFiberConcurrentUpdates";
-import { Passive as PassiveEffect } from "./ReactFiberFlags";
-import { HasEffect as HookHasEffect, Passive as HookPassive } from "./ReactHookEffectTags";
+import { Passive as PassiveEffect, Update as UpdateEffect } from "./ReactFiberFlags";
+import { HasEffect as HookHasEffect, Passive as HookPassive, Layout as HookLayout } from "./ReactHookEffectTags";
 
 let currentlyRenderingFiber = null; //当前正在渲染的fiber
 let workInProgressHook = null; //当前的hook
@@ -12,13 +12,23 @@ const { ReactCurrentDispatcher } = ReactSharedInternals;
 const HooksDispatcherOnMount = {
   useReducer: mountReducer,
   useState: mountState,
-  useEffect: mountEffect
+  useEffect: mountEffect,
+  useLayoutEffect: mountLayoutEffect
 };
 const HooksDispatcherOnUpdate = {
   useReducer: updateReducer,
   useState: updateState,
-  useEffect: updateEffect
+  useEffect: updateEffect,
+  useLayoutEffect: updateLayoutEffect
 };
+
+function mountLayoutEffect(create, deps) {
+  return mountEffectImpl(UpdateEffect, HookLayout, create, deps);
+}
+
+function updateLayoutEffect(create, deps) {
+  return updateEffectImpl(UpdateEffect, HookLayout, create, deps);
+}
 
 function updateEffect(create, deps) {
   return updateEffectImpl(PassiveEffect, HookPassive, create, deps);

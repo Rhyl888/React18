@@ -8,11 +8,11 @@ function FunctionComponent() {
     return () => {
       console.log("destroy useEffect1");
     };
-  });
-  React.useEffect(() => {
-    console.log("useEffect2");
+  }, []);
+  React.useLayoutEffect(() => {
+    console.log("useLayoutEffect2");
     return () => {
-      console.log("destroy useEffect2");
+      console.log("destroy useLayoutEffect2");
     };
   });
   React.useEffect(() => {

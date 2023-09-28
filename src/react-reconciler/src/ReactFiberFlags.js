@@ -5,3 +5,4 @@ export const ChildDeletion = 0b00000000000000000000001000; //有子节点需要�
 export const MutationMask = Placement | Update | ChildDeletion;
 //如果函数组件使用了useEffect 则里面包含这个1024
 export const Passive = 0b00000000000000010000000000; //1024
+export const LayoutMask = Update;

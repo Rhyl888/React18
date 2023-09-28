@@ -6,7 +6,8 @@ import { ChildDeletion, MutationMask, NoFlags, Passive, Placement, Update } from
 import {
   commitMutationEffectsOnFiber, //执行DOM操作
   commitPassiveUnmountEffects, //执行destroy
-  commitPassiveMountEffects //执行create
+  commitPassiveMountEffects, //执行create
+  commitLayoutEffects
 } from "./ReactFiberCommitWork";
 import { finishQueueingConCurrentUpdates } from "./ReactFiberConcurrentUpdates";
 import { FunctionComponent, HostComponent, HostRoot, HostText } from "./ReactWorkTags";
@@ -70,8 +71,9 @@ function commitRoot(root) {
   const rootHasEffects = (finishedWork.flags & MutationMask) !== NoFlags;
   //如果自己有副作用或者子节点有副作用就进行提交DOM操作
   if (subtreeHasEffects || rootHasEffects) {
-    //执行DOM操作
+    //执行DOM变更操作
     commitMutationEffectsOnFiber(finishedWork, root);
+    commitLayoutEffects(finishedWork, root);
     if (rootDoesHavePassiveEffect) {
       root.current = finishedWork;
       rootDoesHavePassiveEffect = false;
