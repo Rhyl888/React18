@@ -1,4 +1,4 @@
-import { scheduleCallback } from "scheduler";
+import { scheduleCallback, shouldYield, unstable_NormalPriority as NormalSchedulerPriority } from "scheduler";
 import { createWorkInProgress } from "./ReactFiber";
 import { beginWork } from "./ReactFiberBeginWork";
 import { completeWork } from "./ReactFiberCompleteWork";
@@ -29,7 +29,7 @@ export function scheduleUpdateOnFiber(root) {
 function ensureRootIsScheduled(root) {
   if (workInProgressRoot) return;
   workInProgressRoot = root;
-  scheduleCallback(performConcurrentWorkOnRoot.bind(null, root));
+  scheduleCallback(NormalSchedulerPriority, performConcurrentWorkOnRoot.bind(null, root));
 }
 
 /**
@@ -62,10 +62,10 @@ function commitRoot(root) {
   if ((finishedWork.subtreeFlags & Passive) !== NoFlags || (finishedWork.flags & Passive) !== NoFlags) {
     if (!rootDoesHavePassiveEffect) {
       rootDoesHavePassiveEffect = true;
-      scheduleCallback(flushPassiveEffect);
+      scheduleCallback(NormalSchedulerPriority, flushPassiveEffect);
     }
   }
-  console.log("~~~~~~~~");
+  console.log("~~~~~~~~开始commit");
   //判断子树有没有副作用
   const subtreeHasEffects = (finishedWork.subtreeFlags & MutationMask) !== NoFlags;
   const rootHasEffects = (finishedWork.flags & MutationMask) !== NoFlags;
@@ -95,7 +95,14 @@ function renderRootSync(root) {
   prepareFreshStack(root);
   workLoopSync();
 }
-
+function workLoopConcurrent() {
+  //如果有下一个要构建的fiber并且时间片没有过期
+  while (workInProgress !== null && !shouldYield()) {
+    //console.log('shouldYield()', shouldYield(), workInProgress);
+    sleep(5);
+    performUnitOfWork(workInProgress);
+  }
+}
 function workLoopSync() {
   while (workInProgress !== null) {
     performUnitOfWork(workInProgress);
