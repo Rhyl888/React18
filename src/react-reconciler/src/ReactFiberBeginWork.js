@@ -72,7 +72,6 @@ function updateFunctionComponent(current, workInProgress, Component, nextProps) 
  *根据新虚拟DOM 构建 新的fiber子链表 child 和sibling
  * @param {*} current 老fiber
  * @param {*} workInProgress 新的fiber
- * brucefe/bruce_nodejs_project_template
  */
 export function beginWork(current, workInProgress) {
   switch (workInProgress.tag) {

@@ -181,6 +181,7 @@ function updateWorkInProgressHook() {
     queue: currentHook.queue,
     next: null
   };
+  //当前没有正在工作中的Hook
   if (workInProgressHook === null) {
     currentlyRenderingFiber.memoizedState = workInProgressHook = newHook;
   } else {
@@ -203,8 +204,9 @@ function updateReducer(reducer) {
   let newState = current.memoizedState;
   if (pendingQueue !== null) {
     queue.pending = null;
-    const firstUpdate = pendingQueue.next; //循环链表的最后一个的next就是第一个
+    const firstUpdate = pendingQueue.next; //循环链表的最后一个的next就是第一个要更新的值
     let update = firstUpdate;
+    //一次性把要更新的值更新完
     do {
       const action = update.action;
       newState = reducer(newState, action);
@@ -243,7 +245,7 @@ function dispatchReducerAction(fiber, queue, action) {
 }
 
 /**
- * 挂在构建中的hook
+ * 挂载构建中的hook
  */
 function mountWorkInProgressHook() {
   const hook = {
@@ -263,7 +265,7 @@ function mountWorkInProgressHook() {
 /**
  * 渲染函数组件
  * @param {*} current 老fiber
- * @param {*} workInProgress 新fiber
+ * @param {*} workInProgress 新fiber，当前正在工作的 fiber 对象
  * @param {*} Component 组件定义
  * @param {*} props 组件属性
  * @returns 虚拟DOM/React元素
@@ -271,8 +273,9 @@ function mountWorkInProgressHook() {
 export function renderWithHooks(current, workInProgress, Component, props) {
   //Function组件对应的fiber
   currentlyRenderingFiber = workInProgress;
-  workInProgress.updateQueue = null;
-  workInProgress.memoizedState = null;
+  // 置空,是因为不同的函数组件里面的Hooks是不关联的
+  workInProgress.updateQueue = null; // 存放副作用存储的链表
+  workInProgress.memoizedState = null; //  memoizedState 用于保存 hooks 链表信息
   //如果有老的fiber和老的hook链表
   if (current !== null && current.memoizedState !== null) {
     ReactCurrentDispatcher.current = HooksDispatcherOnUpdate;

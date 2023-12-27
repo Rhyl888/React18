@@ -6,8 +6,8 @@ export function initialUpdateQueue(fiber) {
   //pending是一个循环链表
   const queue = {
     shared: {
-      pending: null,
-    },
+      pending: null
+    }
   };
   fiber.updateQueue = queue;
 }
@@ -21,11 +21,14 @@ export function enqueueUpdate(fiber, update) {
   const updateQueue = fiber.updateQueue;
   const pending = updateQueue.shared.pending;
   if (pending === null) {
+    //自己指向自己构成循环链表
     update.next = update;
   } else {
+    //拿到最新的节点构成循环链表
     update.next = pending.next;
     pending.next = update;
   }
+  //pending指向最新的更新
   updateQueue.shared.pending = update;
   return markUpdateLaneFromFiberToRoot(fiber);
 }
@@ -59,7 +62,7 @@ export function processUpdateQueue(workInProgress) {
     workInProgress.memoizedState = newState;
   }
 
-  //清楚等待生效的更新
+  //清除等待生效的更新
   queue.shared.pending = null;
 }
 
